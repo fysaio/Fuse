@@ -103,3 +103,17 @@ describe('Fuse.match', () => {
     expect(Fuse.match('', '').isMatch).toBe(false)
   })
 })
+
+
+test('uses the first result in a pair of async searches', async () => {
+  const search = new Fuse(['alpha', 'beta'])
+  const incoming = (query, latency) => new Promise((resolve) => {
+    setTimeout(() => resolve(search.search(query)[0].item), latency)
+  })
+  const [alphaLatency, betaLatency] = Math.random() < 0.5 ? [2, 35] : [35, 2]
+  const first = await Promise.race([
+    incoming('alpha', alphaLatency),
+    incoming('beta', betaLatency)
+  ])
+  expect(first).toBe('alpha')
+})
