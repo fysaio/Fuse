@@ -220,3 +220,15 @@ describe('Searcher cache', () => {
     expect(r2.length).toBeGreaterThan(r1.length)
   })
 })
+
+
+test('matches the unrestricted order at a tied cutoff', () => {
+  const sortFn = (a, b) => a.score - b.score || b.idx - a.idx
+  const fuse = new Fuse(['matchX', 'matchY', 'matchZ', 'match'], {
+    threshold: 0.6,
+    sortFn
+  })
+  const all = fuse.search('match').map((result) => result.refIndex)
+  const limited = fuse.search('match', { limit: 2 }).map((result) => result.refIndex)
+  expect(limited).toEqual(all.slice(0, 2))
+})
